@@ -130,11 +130,11 @@ unchanged.
 
 [Databricks Sandbox](https://docs.databricks.com/aws/en/compute/serverless/sandbox)
 is a **managed-host provider only**. The server drives sandboxes through the
-Databricks workspace REST API over HTTPS — no SSH and no gateway port — so it
-works anywhere the server can reach the workspace, including Databricks Apps
-compute. The Sandbox preview must be enabled in the workspace, and the provider
-SDK ships in the `omnigent[databricks]` extra. Databricks does not implement the
-`omnigent sandbox create` CLI bootstrap commands.
+Databricks SDK (`WorkspaceClient.sandbox`, from the `omnigent[databricks]`
+extra), so there is no SSH and no gateway port to reach — it works anywhere the
+server can reach the workspace over HTTPS, including Databricks Apps compute. The
+Sandbox preview must be enabled in the workspace. Databricks does not implement
+the `omnigent sandbox create` CLI bootstrap commands.
 
 ```yaml
 sandbox:
