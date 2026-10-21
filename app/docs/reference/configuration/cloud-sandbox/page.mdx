@@ -28,7 +28,7 @@ sandbox:
 
 | Field         | Required | Description                                                                                             |
 | ------------- | -------- | ------------------------------------------------------------------------------------------------------- |
-| `provider`    | Yes      | Provider id: `modal`, `daytona`, `islo`, `blaxel`, `gensee`, `openshell`, `boxlite`, or `microsandbox`. |
+| `provider`    | Yes      | Provider id: `modal`, `daytona`, `islo`, `blaxel`, `gensee`, `openshell`, `boxlite`, `microsandbox`, or `databricks`. |
 | `server_url`  | Yes      | Omnigent server URL reachable from the sandbox.                                                         |
 | `host_config` | No       | Omnigent configuration installed inside each sandbox. See [Host configuration](#host-configuration).    |
 | `git_clone`   | No       | Clone policy for fresh repository checkouts. See [Git clone options](#git-clone-options).               |
@@ -389,6 +389,56 @@ days) through Gensee's short-lived secret store; it is not included in the
 durable operation request. By default no model or Git credentials are injected —
 list only variables every sandbox on the server may receive in `env`, or leave
 it empty and let each user sign in from their own sandbox terminal.
+
+## Databricks
+
+[Databricks Sandbox](https://docs.databricks.com/aws/en/compute/serverless/sandbox)
+is a **managed-host provider only**. The server drives sandboxes through the
+Databricks workspace REST API over HTTPS — no SSH and no gateway port — so it
+works anywhere the server can reach the workspace, including Databricks Apps
+compute. The Sandbox preview must be enabled in the workspace, and the provider
+SDK ships in the `omnigent[databricks]` extra. Databricks does not implement the
+`omnigent sandbox create` CLI bootstrap commands.
+
+```yaml
+sandbox:
+  provider: databricks
+  server_url: https://your-server.example.com # public URL the sandbox host dials back to
+  databricks:
+    identity: owner # or "server" (the default)
+    workspace_host: https://<workspace>.cloud.databricks.com # optional pin
+    proxy_bearer: true # only behind the Databricks Apps OAuth proxy
+    inactivity_timeout_s: 3600 # optional idle stop; resumed on the next turn
+    sandbox_id_prefix: omnigent # optional
+    bootstrap_command: uv tool install omnigent # optional, run before each host start
+```
+
+| Setting                | Default  | Purpose                                                                                                                                                 |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `identity`             | `server` | `server` drives every sandbox with one deployment identity; `owner` runs each user's sandbox as that user. See below.                                   |
+| `profile`              | none     | Databricks config profile for `identity: server`. Cannot be combined with `owner`.                                                                      |
+| `workspace_host`       | none     | With `identity: owner`, the only workspace a connection may target; any other workspace is refused.                                                      |
+| `proxy_bearer`         | `false`  | Write a short-lived bearer into the sandbox so its host can reach the server through an authenticating reverse proxy, such as the Databricks Apps OAuth proxy. |
+| `inactivity_timeout_s` | none     | Idle stop; the sandbox is resumed in place on the session's next turn.                                                                                   |
+| `sandbox_id_prefix`    | none     | Prefix for generated sandbox ids.                                                                                                                        |
+| `bootstrap_command`    | none     | Shell command run before each host start and resume, for example a `uv tool install` that pins omnigent over the image's baked version.                  |
+
+**Identity.** With `identity: server`, every sandbox is created and driven by the
+server's own Databricks identity (`profile`, or `DATABRICKS_*` env). The
+sandbox's workspace credential — and with `proxy_bearer: true` its bearer file —
+are then that identity's, so code in any user's sandbox can act as the server.
+Use it only on a single-user server, or where every user may act as the server
+identity.
+
+With `identity: owner`, each sandbox is created and driven by the user who
+started the session, using the Databricks account they connected under
+**Settings → Connections → Databricks**. The credential inside the sandbox is
+that user's, the server's identity cannot reach the sandbox, and a user who has
+not connected is prompted to connect first — nothing falls back to the server
+identity. `owner` needs a per-user Databricks account connection configured on
+the server (an account-level custom OAuth app integration with the
+`all-apis offline_access` scopes), available on servers started with
+`omnigent server -c config.yaml` or the Docker entry point.
 
 ## Native harness bridge servers
 
