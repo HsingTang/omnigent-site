@@ -39,9 +39,8 @@ The hosted-platform comparison below covers Modal, Daytona, Blaxel, and Islo.
 OpenShell connects to your selected gateway; Boxlite can use a local micro-VM runtime
 or a remote `boxlite serve` pool. Gensee and Databricks are managed-host providers
 only: their control planes start the host over HTTPS, so they support the
-server-managed flow but not the CLI bootstrap commands. Databricks drives sandboxes
-through the Databricks SDK (`WorkspaceClient.sandbox`), so it needs no SSH or
-gateway port and works from Databricks Apps compute.
+server-managed flow but not the CLI bootstrap commands. Databricks
+sandboxes are driven through the [Databricks Sandbox SDK](https://databricks-sdk-py.readthedocs.io/en/latest/workspace/sandbox/sandbox.html).
 
 For local microVMs, use [Microsandbox](/docs/reference/configuration/cloud-sandbox#microsandbox).
 Its VMs run on the machine running the server or CLI, so they depend on that

@@ -129,12 +129,10 @@ unchanged.
 ## Databricks
 
 [Databricks Sandbox](https://docs.databricks.com/aws/en/compute/serverless/sandbox)
-is a **managed-host provider only**. The server drives sandboxes through the
-Databricks SDK (`WorkspaceClient.sandbox`, from the `omnigent[databricks]`
-extra), so there is no SSH and no gateway port to reach — it works anywhere the
-server can reach the workspace over HTTPS, including Databricks Apps compute. The
-Sandbox preview must be enabled in the workspace. Databricks does not implement
-the `omnigent sandbox create` CLI bootstrap commands.
+is a **managed-host provider only**. The server drives sandboxes through
+the [Databricks SDK](https://databricks-sdk-py.readthedocs.io/en/latest/workspace/sandbox/sandbox.html).
+To use Databricks Sandboxes, Sandbox preview setting must be enabled
+for the workspace.
 
 ```yaml
 sandbox:
@@ -143,7 +141,7 @@ sandbox:
   databricks:
     workspace_host: https://<workspace>.cloud.databricks.com # required: the workspace Sandboxes run in
     proxy_bearer: true # only behind the Databricks Apps OAuth proxy
-    inactivity_timeout_s: 3600 # optional idle stop; resumed on the next turn
+    inactivity_timeout_s: 3600 # optional idle stop
     sandbox_id_prefix: omnigent # optional
     bootstrap_command: uv tool install omnigent # optional, run before each host start
 ```
@@ -159,9 +157,7 @@ sandbox:
 **Identity.** Every Sandbox is created and driven as the user who started the
 session, using the Databricks account they connected under
 **Settings → Connections → Databricks**. The credential inside the Sandbox — and
-with `proxy_bearer: true` its bearer file — is that user's own; the server's own
-identity is never used, and a user who has not connected is prompted to connect
-first rather than falling back to a shared identity. This needs a per-user
+with `proxy_bearer: true` its bearer file — is that user's own. This needs a per-user
 Databricks account connection configured on the server: an account-level custom
 OAuth app integration with the `all-apis offline_access` scopes.
 
