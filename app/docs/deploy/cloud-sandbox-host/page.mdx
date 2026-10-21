@@ -28,20 +28,20 @@ That's [Omnibox](/docs/omnibox).
 | **Environment**  | Local files              | Isolated, reproducible |
 | **Best for**     | Interactive work         | Long-running tasks     |
 
-Omnigent currently supports [Modal](https://modal.com), [Daytona](https://www.daytona.io),
+Omnigent currently supports
+[Databricks Sandbox](https://docs.databricks.com/aws/en/compute/serverless/sandbox),
+[Modal](https://modal.com), [Daytona](https://www.daytona.io),
 [Blaxel](https://blaxel.ai), [Islo](https://islo.dev), [Gensee](https://gensee.ai),
-[NVIDIA OpenShell](https://github.com/NVIDIA/openshell),
-[Boxlite](https://github.com/boxlite-ai/boxlite), and
-[Databricks Sandbox](https://docs.databricks.com/aws/en/compute/serverless/sandbox)
-for cloud sandbox hosts.
+[NVIDIA OpenShell](https://github.com/NVIDIA/openshell), and
+[Boxlite](https://github.com/boxlite-ai/boxlite) for cloud sandbox hosts.
 
-The hosted-platform comparison below covers Modal, Daytona, Blaxel, and Islo.
-OpenShell connects to your selected gateway; Boxlite can use a local micro-VM runtime
-or a remote `boxlite serve` pool. Gensee and Databricks are managed-host providers
-only: their control planes start the host over HTTPS, so they support the
-server-managed flow but not the CLI bootstrap commands. Databricks drives
-sandboxes over the workspace REST API, so it needs no SSH or gateway port and
-works from Databricks Apps compute.
+Databricks and Gensee are managed-host providers only: their control planes start
+the host over HTTPS, so they support the server-managed flow but not the CLI
+bootstrap commands. Databricks drives sandboxes over the workspace REST API, so it
+needs no SSH or gateway port and works from Databricks Apps compute. The
+hosted-platform comparison below covers Modal, Daytona, Blaxel, and Islo.
+OpenShell connects to your selected gateway; Boxlite can use a local micro-VM
+runtime or a remote `boxlite serve` pool.
 
 For local microVMs, use [Microsandbox](/docs/reference/configuration/cloud-sandbox#microsandbox).
 Its VMs run on the machine running the server or CLI, so they depend on that
@@ -61,6 +61,7 @@ web UI.
 ### 1. Install
 
 ```
+pip install 'omnigent[databricks]'  # for Databricks Sandbox
 pip install 'omnigent[modal]'       # for Modal
 pip install 'omnigent[daytona]'     # for Daytona
 pip install 'omnigent[blaxel]'      # for Blaxel
@@ -68,7 +69,6 @@ pip install 'omnigent[islo]'        # for Islo
 pip install 'omnigent[openshell]'   # for OpenShell
 pip install 'omnigent[boxlite]'     # for Boxlite
 pip install 'omnigent[microsandbox]' # for local microVMs
-pip install 'omnigent[databricks]'  # for Databricks Sandbox
 ```
 
 Gensee needs no extra: it talks to the Gensee control plane over HTTPS and
@@ -81,6 +81,13 @@ posture. To launch Blaxel sandboxes from the CLI you also need the
 [Blaxel CLI](https://docs.blaxel.ai/cli-reference/introduction) (`brew tap blaxel-ai/blaxel && brew install blaxel`).
 
 ### 2. Set provider credentials
+
+**Databricks:** with `identity: server`, set a Databricks config `profile` or the
+`DATABRICKS_*` environment on the server and the provider drives every sandbox
+with that one identity. With `identity: owner`, each user instead connects their
+own Databricks account under **Settings → Connections → Databricks** and their
+sandbox runs as that user; see
+[Databricks settings](/docs/reference/configuration/cloud-sandbox#databricks).
 
 **Modal:** run `modal setup` to authenticate, or set
 `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` on the server.
@@ -129,13 +136,6 @@ the pool endpoint in the [Boxlite settings](/docs/reference/configuration/cloud-
 **Microsandbox:** no provider credentials or daemon are needed; the install extra
 includes the runtime. Use Apple Silicon macOS or glibc Linux with access to
 `/dev/kvm` (typically through the `kvm` group). Intel Macs are not supported.
-
-**Databricks:** with `identity: server`, set a Databricks config `profile` or the
-`DATABRICKS_*` environment on the server and the provider drives every sandbox
-with that one identity. With `identity: owner`, each user instead connects their
-own Databricks account under **Settings → Connections → Databricks** and their
-sandbox runs as that user; see
-[Databricks settings](/docs/reference/configuration/cloud-sandbox#databricks).
 
 Provider control credentials stay on the launching process and never enter the
 sandbox. Web users log in to Omnigent, not the sandbox provider.
@@ -220,7 +220,7 @@ omni sandbox connect --provider modal \
   --sandbox-id <id> --server <url>
 ```
 
-Boxlite, Gensee, and Databricks support the server-managed flow but not these CLI
+Databricks, Boxlite, and Gensee support the server-managed flow but not these CLI
 bootstrap commands.
 
 For Microsandbox, use `--provider microsandbox` and pass a `--server` URL
