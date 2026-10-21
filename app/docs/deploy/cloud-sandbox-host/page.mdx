@@ -35,13 +35,13 @@ Omnigent currently supports
 [NVIDIA OpenShell](https://github.com/NVIDIA/openshell), and
 [Boxlite](https://github.com/boxlite-ai/boxlite) for cloud sandbox hosts.
 
-Databricks and Gensee are managed-host providers only: their control planes start
-the host over HTTPS, so they support the server-managed flow but not the CLI
-bootstrap commands. Databricks drives sandboxes over the workspace REST API, so it
-needs no SSH or gateway port and works from Databricks Apps compute. The
-hosted-platform comparison below covers Modal, Daytona, Blaxel, and Islo.
-OpenShell connects to your selected gateway; Boxlite can use a local micro-VM
-runtime or a remote `boxlite serve` pool.
+The hosted-platform comparison below covers Modal, Daytona, Blaxel, and Islo.
+OpenShell connects to your selected gateway; Boxlite can use a local micro-VM runtime
+or a remote `boxlite serve` pool. Gensee and Databricks are managed-host providers
+only: their control planes start the host over HTTPS, so they support the
+server-managed flow but not the CLI bootstrap commands. Databricks drives sandboxes
+over the workspace REST API, so it needs no SSH or gateway port and works from
+Databricks Apps compute.
 
 For local microVMs, use [Microsandbox](/docs/reference/configuration/cloud-sandbox#microsandbox).
 Its VMs run on the machine running the server or CLI, so they depend on that
@@ -82,11 +82,10 @@ posture. To launch Blaxel sandboxes from the CLI you also need the
 
 ### 2. Set provider credentials
 
-**Databricks:** with `identity: server`, set a Databricks config `profile` or the
-`DATABRICKS_*` environment on the server and the provider drives every sandbox
-with that one identity. With `identity: owner`, each user instead connects their
-own Databricks account under **Settings → Connections → Databricks** and their
-sandbox runs as that user; see
+**Databricks:** Sandboxes run as each user's own Databricks account, so there is
+no shared provider key on the server. Each user connects under
+**Settings → Connections → Databricks**, which needs an account-level custom OAuth
+app integration configured on the server; see
 [Databricks settings](/docs/reference/configuration/cloud-sandbox#databricks).
 
 **Modal:** run `modal setup` to authenticate, or set
