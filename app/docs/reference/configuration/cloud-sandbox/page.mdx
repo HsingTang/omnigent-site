@@ -131,7 +131,7 @@ unchanged.
 [Databricks Sandbox](https://docs.databricks.com/aws/en/compute/serverless/sandbox)
 is a **managed-host provider only**. The server drives sandboxes through
 the [Databricks SDK](https://databricks-sdk-py.readthedocs.io/en/latest/workspace/sandbox/sandbox.html).
-To use Databricks Sandboxes, Sandbox preview setting must be enabled
+To use Databricks Sandboxes, the Sandbox preview setting must be enabled
 for the workspace.
 
 ```yaml
@@ -140,7 +140,6 @@ sandbox:
   server_url: https://your-server.example.com # public URL the sandbox host dials back to
   databricks:
     workspace_host: https://<workspace>.cloud.databricks.com # required: the workspace Sandboxes run in
-    proxy_bearer: true # only behind the Databricks Apps OAuth proxy
     inactivity_timeout_s: 3600 # optional idle stop
     sandbox_id_prefix: omnigent # optional
     bootstrap_command: uv tool install omnigent # optional, run before each host start
@@ -150,7 +149,7 @@ sandbox:
 | ---------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `workspace_host`       | required   | The workspace Sandboxes run in. A user whose connected Databricks account targets any other workspace is refused, so their Sandboxes are never orphaned.                               |
 | `proxy_bearer`         | `false`    | Write a short-lived bearer (the owner's own token) into the sandbox so its host can reach the server through an authenticating reverse proxy, such as the Databricks Apps OAuth proxy. |
-| `inactivity_timeout_s` | none       | Idle stop; the sandbox is resumed in place on the session's next turn. Must be at least twice the keepalive interval.                                                                  |
+| `inactivity_timeout_s` | none       | Idle stop; the sandbox is resumed in place on the session's next turn. Optional; if set, must be at least 1200 seconds (twice the 600-second liveness keepalive).                      |
 | `sandbox_id_prefix`    | `omnigent` | Prefix for generated sandbox ids.                                                                                                                                                      |
 | `bootstrap_command`    | none       | Shell command run before each host start and resume, for example a `uv tool install` that pins omnigent over the image's baked version.                                                |
 
