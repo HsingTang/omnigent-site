@@ -161,14 +161,16 @@ the Sandbox, and with `proxy_bearer: true` its bearer file, is that user's own.
 
 This provider works only when the server has a Databricks account connection
 wired: an account-level custom OAuth app integration with the
-`all-apis offline_access` scopes, plus the
-[Credential Store](/docs/deploy/credential-store) that persists the per-user
-tokens. See [Connect Databricks](/docs/deploy/databricks-connect) for the server
-setup (`OMNIGENT_DATABRICKS_CLIENT_ID` / `OMNIGENT_DATABRICKS_CLIENT_SECRET`, the
-redirect URI, and `OMNIGENT_CREDENTIAL_KMS_KEY_ID`). The `sandbox` block above is
-accepted at startup without it, but every launch then fails with
-`this server has no Databricks account connection configured` until the
-connection is set and the session owner has connected.
+`all-apis offline_access` scopes, plus a
+[Credential Store](/docs/deploy/credential-store) to encrypt and persist the
+per-user tokens. See [Connect Databricks](/docs/deploy/databricks-connect) for the
+server setup (`OMNIGENT_DATABRICKS_CLIENT_ID` /
+`OMNIGENT_DATABRICKS_CLIENT_SECRET` and the redirect URI). Both are required: if
+the OAuth app is configured but no Credential Store key is set, the connection
+stays disabled (logged at startup). The `sandbox` block above is accepted at
+startup regardless, but every launch then fails with `this server has no
+Databricks account connection configured` until the connection is fully
+configured and the session owner has connected.
 
 ## Modal
 
